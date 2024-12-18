@@ -6,7 +6,7 @@ const Joi = require("joi");
 const app = express();
 
 // Configure CORS to allow requests from your frontend URL on Render
-const frontendUrl = "https://your-frontend-app.onrender.com";  // Replace with your actual frontend URL
+const frontendUrl = "https://form-with-validation.onrender.com";  // Replace with your actual frontend URL
 app.use(cors({ origin: frontendUrl }));  // Enable CORS for your frontend
 
 // Database connection setup (using DATABASE_URL environment variable)
