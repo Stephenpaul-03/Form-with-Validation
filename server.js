@@ -5,14 +5,15 @@ const { Pool } = require("pg");
 const Joi = require("joi");
 const app = express();
 
+const { Pool } = require("pg");
+
 const pool = new Pool({
-  host: "localhost",
-  user: "postgres",
-  password: "2004",
-  database: "employee_db",
-  port: 5432,
-  ssl: false,  
+  connectionString: process.env.DATABASE_URL, 
+  ssl: {
+    rejectUnauthorized: false, 
+  },
 });
+
 
 app.use(cors());
 app.use(bodyParser.json());
