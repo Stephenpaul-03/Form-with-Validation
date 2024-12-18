@@ -5,16 +5,21 @@ const { Pool } = require("pg");
 const Joi = require("joi");
 const app = express();
 
+// Configure CORS to allow requests from your frontend URL on Render
+const frontendUrl = "https://your-frontend-app.onrender.com";  // Replace with your actual frontend URL
+app.use(cors({ origin: frontendUrl }));  // Enable CORS for your frontend
+
+// Database connection setup (using DATABASE_URL environment variable)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false, 
+    rejectUnauthorized: false,  // Required for Render's SSL configuration
   },
 });
 
-app.use(cors());
 app.use(bodyParser.json());
 
+// Define employee schema using Joi for validation
 const employeeSchema = Joi.object({
   firstName: Joi.string().required(),
   middleName: Joi.string().allow(""),
@@ -31,6 +36,7 @@ const employeeSchema = Joi.object({
   gender: Joi.string().valid("Male", "Female", "Other").required(),
 });
 
+// Get all employees
 app.get("/api/employees", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM employees");
@@ -41,6 +47,7 @@ app.get("/api/employees", async (req, res) => {
   }
 });
 
+// Add a new employee
 app.post("/api/employees", async (req, res) => {
   const { error } = employeeSchema.validate(req.body);
   if (error) {
@@ -66,6 +73,7 @@ app.post("/api/employees", async (req, res) => {
   const fullName = [firstName, middleName, lastName].filter(Boolean).join(" ");
 
   try {
+    // Check if the employee ID or email already exists
     const queryCheck = `
       SELECT 1 FROM employees WHERE employee_id = $1 OR email = $2
     `;
@@ -75,6 +83,7 @@ app.post("/api/employees", async (req, res) => {
       return res.status(400).json({ message: "Employee ID, Email and/or Mobile number already exists." });
     }
 
+    // Insert the new employee
     const queryInsert = `
       INSERT INTO employees 
       (employee_id, name, email, phone, department, other_department, date_of_joining, role, dob, age, gender)
@@ -102,5 +111,6 @@ app.post("/api/employees", async (req, res) => {
   }
 });
 
-const PORT = 5000;
+// Start the server
+const PORT = process.env.PORT || 5000;  // Use the environment variable PORT for Render
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
