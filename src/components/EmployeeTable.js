@@ -8,14 +8,12 @@ const EmployeeTable = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch employees when the component mounts
   useEffect(() => {
     fetchEmployees();
   }, []);
 
   const fetchEmployees = async () => {
     try {
-      // Update the endpoint to your Render backend URL
       const response = await axios.get("https://form-with-validation-server.onrender.com/api/employees");
       setEmployees(response.data);
     } catch (error) {
@@ -26,7 +24,6 @@ const EmployeeTable = () => {
 
   return (
     <div>
-      <h1>Employee Table</h1>
       {error && <p className="error">{error}</p>}
       <table>
         <thead>
