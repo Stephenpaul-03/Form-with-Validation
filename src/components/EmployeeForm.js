@@ -170,7 +170,7 @@ const getValidationClass = (fieldName) => {
     }
 
     try {
-      const response = await axios.post("https://form-with-validation-server.onrender.com", formData);
+      const response = await axios.post("https://form-with-validation-server.onrender.com/api/employees", formData);
       alert("Employee added successfully!");
       const userAction = window.confirm("Do you want to add another employee?");
       if (userAction) {
