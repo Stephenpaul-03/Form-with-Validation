@@ -1,0 +1,33 @@
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  th,
+  td {
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 14px;
+    color: #333;
+  }
+
+  th {
+    background-color: #6c757d;
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+
+  td {
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+  }
+
+  tr:hover td {
+    background-color: #f1f1f1;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
