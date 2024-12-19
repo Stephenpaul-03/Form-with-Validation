@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import Joi from "joi";
-import { Tooltip } from 'react-tooltip';
 import './EmployeeForm.css';
 
 const EmployeeForm = () => {
@@ -183,10 +182,18 @@ const EmployeeForm = () => {
         await axios.post("https://form-with-validation-server.onrender.com/api/employees", formData);
         alert("Employee added successfully!");
       }
-      navigate("/"); 
+      navigate("/");
     } catch (error) {
       alert("Error saving employee: " + error.response?.data?.message || error.message);
     }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
   const handleReset = () => {
