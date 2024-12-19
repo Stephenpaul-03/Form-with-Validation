@@ -1,30 +1,19 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Joi from "joi";
 import { Tooltip } from 'react-tooltip';
 import './EmployeeForm.css';
 
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
+import "./EmployeeForm.css";
+
 const EmployeeForm = () => {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    dob: "",
-    age: "",
-    gender: "",
-    email: "",
-    phone: "",
-    employeeId: "",
-    department: "",
-    OtherDepartment: "",
-    dateOfJoining: "",
-    role: "",
-  });
-
-  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const { employee } = location.state || {}; 
   const employeeSchema = Joi.object({
     firstName: Joi.string()
       .pattern(/^[A-Za-z]+$/)
@@ -179,25 +168,44 @@ const EmployeeForm = () => {
     }
   }, [employee]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+  const [formData, setFormData] = useState({
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    employeeId: "",
+    email: "",
+    phone: "",
+    department: "",
+    OtherDepartment: "",
+    dateOfJoining: "",
+    role: "",
+    dob: "",
+    age: "",
+    gender: "",
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.put(`https://form-with-validation-server.onrender.com/api/employees/${formData.employeeId}`, formData);
-      console.log(response.data);
-      navigate("/employee-table");
-    } catch (error) {
-      console.error("Error updating employee:", error);
+  // Populate form with employee data if available
+  useEffect(() => {
+    if (employee) {
+      const { name, employee_id, email, phone, department, other_department, date_of_joining, role, dob, age, gender } = employee;
+      const [firstName, middleName, lastName] = name.split(" "); // Assuming the name is full name
+      setFormData({
+        firstName,
+        middleName,
+        lastName,
+        employeeId: employee_id,
+        email,
+        phone,
+        department,
+        OtherDepartment: department === "Others" ? other_department : "",
+        dateOfJoining: date_of_joining,
+        role,
+        dob,
+        age,
+        gender,
+      });
     }
-  };
-
+  }, [employee]); 
   const handleReset = () => {
     if (window.confirm("Are you sure you want to reset all fields?")) {
       setFormData({
@@ -219,6 +227,27 @@ const EmployeeForm = () => {
     }
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.put(
+        `https://form-with-validation-server.onrender.com/api/employees/${formData.employeeId}`,
+        formData
+      );
+      console.log(response.data);
+      navigate("/employee-table"); // Redirect to the employee table page
+    } catch (error) {
+      console.error("Error updating employee:", error);
+    }
+  };
 
 
   return (
