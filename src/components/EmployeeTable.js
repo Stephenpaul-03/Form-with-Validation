@@ -22,10 +22,6 @@ const EmployeeTable = () => {
     }
   };
 
-  const handleUpdate = (employee) => {
-    navigate("/employee-form", { state: { employee } }); 
-  };
-
   const handleDelete = async (employeeId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this employee?");
     if (confirmDelete) {
@@ -68,7 +64,6 @@ const EmployeeTable = () => {
               <td>{employee.role}</td>
               <td>{employee.date_of_joining ? new Date(employee.date_of_joining).toLocaleDateString("en-US") : "N/A"}</td>
               <td>
-                <button onClick={() => handleUpdate(employee)}>Update</button>
                 <button onClick={() => handleDelete(employee.employee_id)}>Delete</button>
               </td>
             </tr>
