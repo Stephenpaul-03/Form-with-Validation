@@ -22,23 +22,6 @@ const EmployeeTable = () => {
     }
   };
 
-  const handleUpdate = (employee) => {
-    navigate("/employee-form", { state: { employee } }); // Passing the employee data to the form
-  };
-
-  const handleDelete = async (employeeId) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this employee?");
-    if (confirmDelete) {
-      try {
-        await axios.delete(`https://form-with-validation-server.onrender.com/api/employees/${employeeId}`);
-        fetchEmployees();
-      } catch (error) {
-        console.error("Error deleting employee:", error);
-        alert("Failed to delete employee. Please try again.");
-      }
-    }
-  };
-
   return (
     <div>
       {error && <p className="error">{error}</p>}
@@ -53,7 +36,6 @@ const EmployeeTable = () => {
             <th>Department</th>
             <th>Role</th>
             <th>Date of Joining</th>
-            <th>Actions</th> 
           </tr>
         </thead>
         <tbody>
@@ -66,10 +48,14 @@ const EmployeeTable = () => {
               <td>{employee.phone}</td>
               <td>{employee.department === "Others" ? employee.other_department : employee.department}</td>
               <td>{employee.role}</td>
-              <td>{employee.date_of_joining ? new Date(employee.date_of_joining).toLocaleDateString("en-US") : "N/A"}</td>
               <td>
-                <button onClick={() => handleUpdate(employee)}>Update</button>
-                <button onClick={() => handleDelete(employee.employee_id)}>Delete</button>
+                {employee.date_of_joining
+                  ? new Date(employee.date_of_joining).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                    })
+                  : "N/A"}
               </td>
             </tr>
           ))}

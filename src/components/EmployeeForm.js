@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Joi from "joi";
 import { Tooltip } from 'react-tooltip';
 import './EmployeeForm.css';
@@ -21,15 +21,9 @@ const EmployeeForm = () => {
     dateOfJoining: "",
     role: "",
   });
+
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.state && location.state.employee) {
-      setFormData(location.state.employee);
-    }
-  }, [location.state]);
 
   const employeeSchema = Joi.object({
     firstName: Joi.string()
@@ -155,13 +149,13 @@ const EmployeeForm = () => {
     setErrors((prev) => ({ ...prev, [name]: validationResult.error }));
   };
 
-  const getValidationClass = (fieldName) => {
+const getValidationClass = (fieldName) => {
     if (!formData[fieldName]) return "";
     if ((fieldName === "dob" || fieldName === "age") && (errors.dob || errors.age)) {
       return errors.dob || errors.age ? "invalid" : "valid";
     }
     return errors[fieldName] ? "invalid" : "valid";
-  };
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -176,25 +170,17 @@ const EmployeeForm = () => {
     }
 
     try {
-      if (formData.employeeId) {
-        await axios.put(`https://form-with-validation-server.onrender.com/api/employees/${formData.employeeId}`, formData);
-        alert("Employee updated successfully!");
+      const response = await axios.post("https://form-with-validation-server.onrender.com/api/employees", formData);
+      alert("Employee added successfully!");
+      const userAction = window.confirm("Do you want to add another employee?");
+      if (userAction) {
+        handleReset();
       } else {
-        await axios.post("https://form-with-validation-server.onrender.com/api/employees", formData);
-        alert("Employee added successfully!");
+        navigate("/");
       }
-      navigate("/");
     } catch (error) {
-      alert("Error saving employee: " + error.response?.data?.message || error.message);
+      alert("Error adding employee: " + error.response.data.message);
     }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
   };
 
   const handleReset = () => {
@@ -218,7 +204,7 @@ const EmployeeForm = () => {
     }
   };
 
-
+  
 
   return (
     <div>
@@ -245,15 +231,15 @@ const EmployeeForm = () => {
                 />
 
               </div>
-
+              
               <Tooltip id="firstNameTooltip" />
-
+              
               <div
                 className={`Validation_Box ${getValidationClass("middleName")}`}
                 data-tooltip-id="middleNameTooltip"
                 data-tooltip-content={errors.middleName || ""}
               >
-
+              
                 <input
                   type="text"
                   name="middleName"
@@ -264,7 +250,7 @@ const EmployeeForm = () => {
                 />
 
               </div>
-
+              
               <Tooltip id="middleNameTooltip" />
 
               <div
@@ -283,7 +269,7 @@ const EmployeeForm = () => {
                 />
 
               </div>
-
+              
               <Tooltip id="lastNameTooltip" />
 
             </div>
@@ -305,7 +291,7 @@ const EmployeeForm = () => {
                 />
 
               </div>
-
+              
               <Tooltip id="emailTooltip" />
 
               <div
@@ -324,7 +310,7 @@ const EmployeeForm = () => {
                 />
 
               </div>
-
+              
               <Tooltip id="phoneTooltip" />
 
             </div>
@@ -345,7 +331,7 @@ const EmployeeForm = () => {
                 />
 
               </div>
-
+              
               <Tooltip id="dobTooltip" />
 
               <div
@@ -364,7 +350,7 @@ const EmployeeForm = () => {
                 />
 
               </div>
-
+              
               <Tooltip id="ageTooltip" />
 
               <div
@@ -496,8 +482,12 @@ const EmployeeForm = () => {
             </div>
           </div>
           <div className="Buttons">
-            <button type="button" onClick={handleReset} className="Reset_Button">Reset</button>
-            <button type="submit">{formData.employeeId ? "Update" : "Submit"}</button>
+            <button type="button" onClick={handleReset} className="Reset_Button">
+              Reset
+            </button>
+            <button type="submit" className="Submit_Button">
+              Submit
+            </button>
           </div>
         </form>
       </div >
