@@ -1,14 +1,30 @@
-import React, { useState,useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Joi from "joi";
 import { Tooltip } from 'react-tooltip';
 import './EmployeeForm.css';
 
 const EmployeeForm = () => {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    dob: "",
+    age: "",
+    gender: "",
+    email: "",
+    phone: "",
+    employeeId: "",
+    department: "",
+    OtherDepartment: "",
+    dateOfJoining: "",
+    role: "",
+  });
+
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
-  const location = useLocation();
-  const { employee } = location.state || {}; 
+
   const employeeSchema = Joi.object({
     firstName: Joi.string()
       .pattern(/^[A-Za-z]+$/)
@@ -133,74 +149,40 @@ const EmployeeForm = () => {
     setErrors((prev) => ({ ...prev, [name]: validationResult.error }));
   };
 
-  const getValidationClass = (fieldName) => {
+const getValidationClass = (fieldName) => {
     if (!formData[fieldName]) return "";
     if ((fieldName === "dob" || fieldName === "age") && (errors.dob || errors.age)) {
       return errors.dob || errors.age ? "invalid" : "valid";
     }
     return errors[fieldName] ? "invalid" : "valid";
+};
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { error } = employeeSchema.validate(formData, { abortEarly: false });
+    if (error) {
+      const errorMessages = {};
+      error.details.forEach((err) => {
+        errorMessages[err.context.key] = err.message;
+      });
+      setErrors(errorMessages);
+      return;
+    }
+
+    try {
+      const response = await axios.post("https://form-with-validation-server.onrender.com/api/employees", formData);
+      alert("Employee added successfully!");
+      const userAction = window.confirm("Do you want to add another employee?");
+      if (userAction) {
+        handleReset();
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      alert("Error adding employee: " + error.response.data.message);
+    }
   };
 
-  useEffect(() => {
-    if (employee) {
-      const { name, employee_id, email, phone, department, other_department, date_of_joining, role, dob, age, gender } = employee;
-      const [firstName, middleName, lastName] = name.split(" "); // Assuming name is full name
-      setFormData({
-        firstName,
-        middleName,
-        lastName,
-        employeeId: employee_id,
-        email,
-        phone,
-        department,
-        OtherDepartment: department === "Others" ? other_department : "",
-        dateOfJoining: date_of_joining,
-        role,
-        dob,
-        age,
-        gender,
-      });
-    }
-  }, [employee]);
-
-  const [formData, setFormData] = useState({
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    employeeId: "",
-    email: "",
-    phone: "",
-    department: "",
-    OtherDepartment: "",
-    dateOfJoining: "",
-    role: "",
-    dob: "",
-    age: "",
-    gender: "",
-  });
-
-  // Populate form with employee data if available
-  useEffect(() => {
-    if (employee) {
-      const { name, employee_id, email, phone, department, other_department, date_of_joining, role, dob, age, gender } = employee;
-      const [firstName, middleName, lastName] = name.split(" "); // Assuming the name is full name
-      setFormData({
-        firstName,
-        middleName,
-        lastName,
-        employeeId: employee_id,
-        email,
-        phone,
-        department,
-        OtherDepartment: department === "Others" ? other_department : "",
-        dateOfJoining: date_of_joining,
-        role,
-        dob,
-        age,
-        gender,
-      });
-    }
-  }, [employee]); 
   const handleReset = () => {
     if (window.confirm("Are you sure you want to reset all fields?")) {
       setFormData({
@@ -222,28 +204,7 @@ const EmployeeForm = () => {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.put(
-        `https://form-with-validation-server.onrender.com/api/employees/${formData.employeeId}`,
-        formData
-      );
-      console.log(response.data);
-      navigate("/employee-table"); // Redirect to the employee table page
-    } catch (error) {
-      console.error("Error updating employee:", error);
-    }
-  };
-
+  
 
   return (
     <div>
@@ -270,15 +231,15 @@ const EmployeeForm = () => {
                 />
 
               </div>
-
+              
               <Tooltip id="firstNameTooltip" />
-
+              
               <div
                 className={`Validation_Box ${getValidationClass("middleName")}`}
                 data-tooltip-id="middleNameTooltip"
                 data-tooltip-content={errors.middleName || ""}
               >
-
+              
                 <input
                   type="text"
                   name="middleName"
@@ -289,7 +250,7 @@ const EmployeeForm = () => {
                 />
 
               </div>
-
+              
               <Tooltip id="middleNameTooltip" />
 
               <div
@@ -308,7 +269,7 @@ const EmployeeForm = () => {
                 />
 
               </div>
-
+              
               <Tooltip id="lastNameTooltip" />
 
             </div>
@@ -330,7 +291,7 @@ const EmployeeForm = () => {
                 />
 
               </div>
-
+              
               <Tooltip id="emailTooltip" />
 
               <div
@@ -349,7 +310,7 @@ const EmployeeForm = () => {
                 />
 
               </div>
-
+              
               <Tooltip id="phoneTooltip" />
 
             </div>
@@ -370,7 +331,7 @@ const EmployeeForm = () => {
                 />
 
               </div>
-
+              
               <Tooltip id="dobTooltip" />
 
               <div
@@ -389,7 +350,7 @@ const EmployeeForm = () => {
                 />
 
               </div>
-
+              
               <Tooltip id="ageTooltip" />
 
               <div
