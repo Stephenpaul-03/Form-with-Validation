@@ -149,37 +149,52 @@ const EmployeeForm = () => {
     setErrors((prev) => ({ ...prev, [name]: validationResult.error }));
   };
 
-const getValidationClass = (fieldName) => {
+  const getValidationClass = (fieldName) => {
     if (!formData[fieldName]) return "";
     if ((fieldName === "dob" || fieldName === "age") && (errors.dob || errors.age)) {
       return errors.dob || errors.age ? "invalid" : "valid";
     }
     return errors[fieldName] ? "invalid" : "valid";
-};
+  };
+
+  useEffect(() => {
+    if (employee) {
+      const { name, employee_id, email, phone, department, other_department, date_of_joining, role, dob, age, gender } = employee;
+      const [firstName, middleName, lastName] = name.split(" "); // Assuming name is full name
+      setFormData({
+        firstName,
+        middleName,
+        lastName,
+        employeeId: employee_id,
+        email,
+        phone,
+        department,
+        OtherDepartment: department === "Others" ? other_department : "",
+        dateOfJoining: date_of_joining,
+        role,
+        dob,
+        age,
+        gender,
+      });
+    }
+  }, [employee]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { error } = employeeSchema.validate(formData, { abortEarly: false });
-    if (error) {
-      const errorMessages = {};
-      error.details.forEach((err) => {
-        errorMessages[err.context.key] = err.message;
-      });
-      setErrors(errorMessages);
-      return;
-    }
-
     try {
-      const response = await axios.post("https://form-with-validation-server.onrender.com/api/employees", formData);
-      alert("Employee added successfully!");
-      const userAction = window.confirm("Do you want to add another employee?");
-      if (userAction) {
-        handleReset();
-      } else {
-        navigate("/");
-      }
+      const response = await axios.put(`https://form-with-validation-server.onrender.com/api/employees/${formData.employeeId}`, formData);
+      console.log(response.data);
+      navigate("/employee-table");
     } catch (error) {
-      alert("Error adding employee: " + error.response.data.message);
+      console.error("Error updating employee:", error);
     }
   };
 
@@ -204,7 +219,7 @@ const getValidationClass = (fieldName) => {
     }
   };
 
-  
+
 
   return (
     <div>
@@ -231,15 +246,15 @@ const getValidationClass = (fieldName) => {
                 />
 
               </div>
-              
+
               <Tooltip id="firstNameTooltip" />
-              
+
               <div
                 className={`Validation_Box ${getValidationClass("middleName")}`}
                 data-tooltip-id="middleNameTooltip"
                 data-tooltip-content={errors.middleName || ""}
               >
-              
+
                 <input
                   type="text"
                   name="middleName"
@@ -250,7 +265,7 @@ const getValidationClass = (fieldName) => {
                 />
 
               </div>
-              
+
               <Tooltip id="middleNameTooltip" />
 
               <div
@@ -269,7 +284,7 @@ const getValidationClass = (fieldName) => {
                 />
 
               </div>
-              
+
               <Tooltip id="lastNameTooltip" />
 
             </div>
@@ -291,7 +306,7 @@ const getValidationClass = (fieldName) => {
                 />
 
               </div>
-              
+
               <Tooltip id="emailTooltip" />
 
               <div
@@ -310,7 +325,7 @@ const getValidationClass = (fieldName) => {
                 />
 
               </div>
-              
+
               <Tooltip id="phoneTooltip" />
 
             </div>
@@ -331,7 +346,7 @@ const getValidationClass = (fieldName) => {
                 />
 
               </div>
-              
+
               <Tooltip id="dobTooltip" />
 
               <div
@@ -350,7 +365,7 @@ const getValidationClass = (fieldName) => {
                 />
 
               </div>
-              
+
               <Tooltip id="ageTooltip" />
 
               <div
