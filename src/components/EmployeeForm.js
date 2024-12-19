@@ -5,11 +5,6 @@ import Joi from "joi";
 import { Tooltip } from 'react-tooltip';
 import './EmployeeForm.css';
 
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
-import "./EmployeeForm.css";
-
 const EmployeeForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
