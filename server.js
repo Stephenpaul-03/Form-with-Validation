@@ -105,58 +105,6 @@ app.post("/api/employees", async (req, res) => {
   }
 });
 
-app.put("/api/employees/:employeeId", async (req, res) => {
-  const { employeeId } = req.params;
-  const { error } = employeeSchema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message });
-  }
-
-  const {
-    firstName,
-    middleName,
-    lastName,
-    dob,
-    age,
-    gender,
-    email,
-    phone,
-    department,
-    OtherDepartment,
-    dateOfJoining,
-    role,
-  } = req.body;
-
-  const fullName = [firstName, middleName, lastName].filter(Boolean).join(" ");
-
-  try {
-    const queryUpdate = `
-      UPDATE employees
-      SET name = $1, email = $2, phone = $3, department = $4, other_department = $5, 
-          date_of_joining = $6, role = $7, dob = $8, age = $9, gender = $10
-      WHERE employee_id = $11
-    `;
-    await pool.query(queryUpdate, [
-      fullName,
-      email,
-      phone,
-      department,
-      department === "Others" ? OtherDepartment : null,
-      dateOfJoining,
-      role,
-      dob,
-      age,
-      gender,
-      employeeId,
-    ]);
-
-    res.status(200).json({ message: "Employee updated successfully." });
-  } catch (err) {
-    console.error("Database error:", err);
-    res.status(500).json({ message: "Internal Server Error." });
-  }
-});
-
 app.delete("/api/employees/:employeeId", async (req, res) => {
   const { employeeId } = req.params;
 
